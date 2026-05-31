@@ -29,9 +29,9 @@ The architecture is explicitly decoupled, operating across three distinct layers
 
 ```mermaid
 graph TD
-    A[Python: Avellaneda-Stoikov Market Maker] -->|ZeroMQ Push (Orders)| B(C#: .NET Trading Server)
-    B -->|ZeroMQ Pub (L3 Market Data)| A
-    B -->|DllImport / P-Invoke| C{C++: LOB Matching Engine}
+    A["Python: Avellaneda-Stoikov Market Maker"] -->|ZeroMQ Push Orders| B("C#: .NET Trading Server")
+    B -->|ZeroMQ Pub L3 Market Data| A
+    B -->|DllImport / P-Invoke| C{"C++: LOB Matching Engine"}
     C -->|O-1 Execution| C
 ```
 
@@ -88,12 +88,16 @@ The Python script connects via ZeroMQ (`SUB` and `PUSH`) and dynamically recalcu
 
 **1. The Reservation Price ($r$)**: 
 The algorithm calculates an "indifference" price, adjusting the actual mid-price ($s$) based on current inventory ($q$). If the dealer is long, the reservation price is lowered to incentivize selling.
-$$ r = s - q \cdot \gamma \cdot \sigma^2 \cdot (T - t) $$
+$$
+r = s - q \cdot \gamma \cdot \sigma^2 \cdot (T - t)
+$$
 *(Where $\gamma$ is risk aversion, $\sigma^2$ is volatility, and $T-t$ is remaining time).*
 
 **2. The Optimal Spread ($\delta$)**:
 The algorithm calculates the perfect symmetric spread around the reservation price by analyzing the liquidity of the order book ($\kappa$). Greater competition forces a narrower spread.
-$$ \delta = \gamma \cdot \sigma^2 \cdot (T - t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right) $$
+$$
+\delta = \gamma \cdot \sigma^2 \cdot (T - t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)
+$$
 
 **3. Execution**:
 The algorithm calculates the integer ticks for `optimal_bid` and `optimal_ask`, cancels its previous active orders, and injects the new orders into the C++ core via the C# gateway.
