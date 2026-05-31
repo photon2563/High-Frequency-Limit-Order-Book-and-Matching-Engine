@@ -1,16 +1,12 @@
-<div align="center">
-  <h1>🚀 High-Frequency Limit Order Book & Matching Engine</h1>
-  <p><strong>An elite, production-grade Quantitative Trading Architecture in C++, C#, and Python</strong></p>
-  
+<h1> High-Frequency Limit Order Book & Matching Engine</h1>  
+
   [![C++](https://img.shields.io/badge/C++-17-blue.svg?style=flat&logo=c%2B%2B)](https://isocpp.org/)
   [![C#](https://img.shields.io/badge/C%23-.NET%208.0-purple.svg?style=flat&logo=c-sharp)](https://docs.microsoft.com/en-us/dotnet/csharp/)
   [![Python](https://img.shields.io/badge/Python-3.9+-yellow.svg?style=flat&logo=python)](https://www.python.org/)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-</div>
-
 <br/>
 
-## 📖 Introduction
+## Introduction
 
 In the highly competitive world of algorithmic trading, latency is the ultimate metric. This repository showcases a **Level 3 (L3) Limit Order Book (LOB) matching engine** engineered from scratch to meet the punishing latency and throughput constraints of modern High-Frequency Trading (HFT). 
 
@@ -23,7 +19,7 @@ This project is tailored to demonstrate deep systems-level optimization, hardwar
 
 ---
 
-## 🏗️ Architectural Overview
+## Architectural Overview
 
 The architecture is explicitly decoupled, operating across three distinct layers to ensure isolation, scalability, and optimal performance.
 
@@ -37,7 +33,7 @@ graph TD
 
 ---
 
-## 🛠️ Phase-by-Phase Deep Dive
+## Phase-by-Phase Deep Dive
 
 ### Phase 1: The C++ Level 3 Matching Engine (The Core)
 *Located in `/src/cpp_engine`*
@@ -86,25 +82,34 @@ Market makers face two primary risks:
 #### The Avellaneda-Stoikov Mathematics
 The Python script connects via ZeroMQ (`SUB` and `PUSH`) and dynamically recalculates quotes on every L3 tick:
 
-**1. The Reservation Price ($r$)**: 
-The algorithm calculates an "indifference" price, adjusting the actual mid-price ($s$) based on current inventory ($q$). If the dealer is long, the reservation price is lowered to incentivize selling.
-$$
-r = s - q \cdot \gamma \cdot \sigma^2 \cdot (T - t)
-$$
-*(Where $\gamma$ is risk aversion, $\sigma^2$ is volatility, and $T-t$ is remaining time).*
+### 1. The Reservation Price (r)
 
-**2. The Optimal Spread ($\delta$)**:
-The algorithm calculates the perfect symmetric spread around the reservation price by analyzing the liquidity of the order book ($\kappa$). Greater competition forces a narrower spread.
-$$
-\delta = \gamma \cdot \sigma^2 \cdot (T - t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)
-$$
+The algorithm calculates an "indifference" price, adjusting the actual mid-price (s) based on current inventory (q). If the dealer is long, the reservation price is lowered to incentivize selling.
 
-**3. Execution**:
+r = s − q·γ·σ²·(T − t)
+
+Where:
+
+- γ = risk aversion
+- σ² = volatility
+- T − t = remaining time
+
+### 2. The Optimal Spread (δ)
+
+The algorithm calculates the optimal symmetric spread around the reservation price by analyzing the liquidity of the order book (κ). Greater competition forces a narrower spread.
+
+δ = γ·σ²·(T − t) + (2/γ) ln(1 + γ/κ)
+
+Where:
+
+- κ = market liquidity
+
+### 3. Execution
 The algorithm calculates the integer ticks for `optimal_bid` and `optimal_ask`, cancels its previous active orders, and injects the new orders into the C++ core via the C# gateway.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **C++ Compiler**: `clang++` or `g++` (supports C++17)
@@ -143,6 +148,6 @@ clang++ -O3 -std=c++17 -march=native -o benchmark benchmark.cpp ../src/cpp_engin
 
 ---
 
-## 🎯 Future Roadmap (Simulating LOBSTER)
+## Future Roadmap (Simulating LOBSTER)
 
 The next step for this architecture is backtesting against historical Level 3 data. Using datasets like **NASDAQ's Historical TotalView-ITCH** (accessible via LOBSTER), researchers can pipe massive historical order book messages directly into the C# ZeroMQ gateway. This allows the Python strategy to be backtested against highly realistic queue positions and tick-level microstructure dynamics.
